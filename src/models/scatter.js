@@ -144,7 +144,9 @@ nv.models.scatter = function() {
               .map(function(point, pointIndex) {
                 // *Adding noise to make duplicates very unlikely
                 // **Injecting series and point index for reference
-                return [x(getX(point,pointIndex)) * (Math.random() / 1e12 + 1)  , y(getY(point,pointIndex)) * (Math.random() / 1e12 + 1), groupIndex, pointIndex, point]; //temp hack to add noise untill I think of a better way so there are no duplicates
+                //return [x(getX(point,pointIndex)) * (Math.random() / 1e12 + 1)  , y(getY(point,pointIndex)) * (Math.random() / 1e12 + 1), groupIndex, pointIndex, point]; //temp hack to add noise untill I think of a better way so there are no duplicates
+                // [x,y,pointIndex,seriesIndex,point]  ..... was (above) [x,y,seriesIndex,pointIndex,point]
+                return [x(getX(point,pointIndex)) * (Math.random() / 1e12 + 1)  , y(getY(point,pointIndex)) * (Math.random() / 1e12 + 1), pointIndex, groupIndex, point]; //temp hack to add noise untill I think of a better way so there are no duplicates
               })
               .filter(function(pointArray, pointIndex) {
                 return pointActive(pointArray[4], pointIndex); // Issue #237.. move filter to after map, so pointIndex is correct!
@@ -175,8 +177,8 @@ nv.models.scatter = function() {
           var voronoi = d3.geom.voronoi(vertices).map(function(d, i) {
               return {
                 'data': d,
-                'series': vertices[i][2],
-                'point': vertices[i][3]
+                'series': vertices[i][3],
+                'point': vertices[i][2]
               }
             });
 
@@ -196,17 +198,19 @@ nv.models.scatter = function() {
           var dataWithPoints = vertices.map(function(d, i) {
               return {
                 'data': d,
-                'series': vertices[i][2],
-                'point': vertices[i][3]
-              }
+                'series': d[3],
+                'point': d[2]
+              };
             });
 
           // add event handlers to points instead voronoi paths
-          eventElements = wrap.select('.nv-groups').selectAll('.nv-group')
+          eventElements = wrap.select('.nv-groups')//.selectAll('.nv-group')
             .selectAll('path.nv-point')
-            .data(dataWithPoints)
-            .style('pointer-events', 'auto'); // recativate events, disabled by css
+              .data(dataWithPoints)
+              .style('pointer-events', 'auto'); // recativate events, disabled by css
         }
+
+        nv.log(eventElements);
 
         eventElements
             .on('click', function(d) {
@@ -221,7 +225,8 @@ nv.models.scatter = function() {
                 pointIndex: d.point
               });
             })
-            .on('mouseover', function(d) {
+            .on('mouseover', function(d,i,j) {
+              //var series = data[useVoronoi ? d.series : j],
               var series = data[d.series],
                   point  = series.values[d.point];
 
@@ -229,17 +234,20 @@ nv.models.scatter = function() {
                 point: point,
                 series: series,
                 pos: [x(getX(point, d.point)) + margin.left, y(getY(point, d.point)) + margin.top],
+                //seriesIndex: useVoronoi ? d.series : j,
                 seriesIndex: d.series,
                 pointIndex: d.point
               });
             })
-            .on('mouseout', function(d, i) {
+            .on('mouseout', function(d,i,j) {
+              //var series = data[useVoronoi ? d.series : j],
               var series = data[d.series],
                   point  = series.values[d.point];
 
               dispatch.elementMouseout({
                 point: point,
                 series: series,
+                //seriesIndex: useVoronoi ? d.series : j,
                 seriesIndex: d.series,
                 pointIndex: d.point
               });

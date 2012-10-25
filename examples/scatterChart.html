@@ -47,7 +47,7 @@ div {
 </div>
 
 <script src="../lib/d3.v2.js"></script>
-<script src="../lib/fisheye.js"></script>
+<!--<script src="../lib/fisheye.js"></script>-->
 <script src="../nv.d3.js"></script>
 <script src="../src/tooltip.js"></script>
 <script src="../src/utils.js"></script>
@@ -58,6 +58,7 @@ div {
 <script src="../src/models/scatterChart.js"></script>
 <script>
 
+var testData = [ { "key" : "Series 0" , "values" : [ { "x" : 0.12645857237180794 , "y" : 0.025308840313231107}]} , { "key" : "Series 1" , "values" : [ { "x" : 0.19515992641466923 , "y" : 0.018319508965792375}]} , { "key" : "Series 2" , "values" : [ { "x" : 0.21416120811364844 , "y" : -0.017516208917298104}]}];
 
 
 //Format A
@@ -65,6 +66,11 @@ nv.addGraph(function() {
   var chart = nv.models.scatterChart()
                 .showDistX(true)
                 .showDistY(true)
+                .yPadding(0.20)
+                .xPadding(0.20)
+                .showControls(false)
+                .sizeRange([200,200])
+                .useVoronoi(false)
                 //.height(500)
                 .color(d3.scale.category10().range());
 
@@ -72,7 +78,8 @@ nv.addGraph(function() {
   chart.yAxis.tickFormat(d3.format('.02f'))
 
   d3.select('#test1 svg')
-      .datum(randomData(4,40))
+      //.datum(randomData(4,40))
+      .datum(testData)
     .transition().duration(500)
       .call(chart);
 
