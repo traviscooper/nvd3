@@ -213,6 +213,14 @@ nv.models.scatter = function() {
 
         eventElements
             .on('click', function(d) {
+              // issues/283 fixes series when not using voronoi
+              if (useVoronoi === false) {
+                // hack to fix the series and point values, by reading data-attrs
+                d.series = parseInt(d3.select(this).attr("data-series"))
+                d.point = parseInt(d3.select(this).attr('data-point'))
+              }
+              // \ issues/283
+
               var series = data[d.series],
                   point  = series.values[d.point];
 
@@ -225,6 +233,14 @@ nv.models.scatter = function() {
               });
             })
             .on('mouseover', function(d) {
+              // issues/283 fixes series when not using voronoi
+              if (useVoronoi === false) {
+                // hack to fix the series and point values, by reading data-attrs
+                d.series = parseInt(d3.select(this).attr("data-series"))
+                d.point = parseInt(d3.select(this).attr('data-point'))
+              }
+              // \ issues/283
+
               var series = data[d.series],
                   point  = series.values[d.point];
 
@@ -237,6 +253,14 @@ nv.models.scatter = function() {
               });
             })
             .on('mouseout', function(d, i) {
+              // issues/283 fixes series when not using voronoi
+              if (useVoronoi === false) {
+                // hack to fix the series and point values, by reading data-attrs
+                d.series = parseInt(d3.select(this).attr("data-series"))
+                d.point = parseInt(d3.select(this).attr('data-point'))
+              }
+              // \ issues/283
+
               var series = data[d.series],
                   point  = series.values[d.point];
 
@@ -289,6 +313,14 @@ nv.models.scatter = function() {
           })
           .remove();
       points.attr('class', function(d,i) { return 'nv-point nv-point-' + i });
+      // issues/283 stuff in series value for broken useVoronoi(false)
+      points.attr('data-series', function(d,i) { 
+        return d.series
+      });
+      points.attr('data-point', function(d,i) { 
+        return i
+      });
+      // \issues/283
       d3.transition(points)
           .attr('transform', function(d,i) {
             return 'translate(' + x(getX(d,i)) + ',' + y(getY(d,i)) + ')'
